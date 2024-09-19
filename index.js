@@ -1,6 +1,7 @@
 const { Command } = require('commander');
 const { fetchHistoricalData } = require('./clients/binance');
 const Joi = require('joi');
+const {parseHistoricalData} = require("./utils");
 const program = new Command();
 
 const schema = Joi.object({
@@ -27,18 +28,8 @@ program
         }
         const historicalData = await fetchHistoricalData(options.symbol, options.from, options.to, options.interval);
 
-        const parse = historicalData.map((row) => {
-            return {
-                startTime: new Date(row[0]),
-                endTime: new Date(row[6]),
-                open: parseFloat(row[1]),
-                close: parseFloat(row[4]),
-                difference: parseFloat(row[4]) - parseFloat(row[1]),
-                high: parseFloat(row[2]),
-                low: parseFloat(row[3]),
-            }
-        })
-        console.log(parse);
+        const parsed = parseHistoricalData(historicalData);
+        console.log(parsed);
     })
 
 program.parse(process.argv);
